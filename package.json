@@ -4,6 +4,8 @@
   "version": "1.0.0",
   "dependencies": {
     "@expo/ui": "~56.0.18",
+    "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-native-segmented-control/segmented-control": "2.5.7",
     "expo": "~56.0.12",
     "expo-constants": "~56.0.18",
     "expo-device": "~56.0.4",
@@ -11,12 +13,15 @@
     "expo-glass-effect": "~56.0.4",
     "expo-image": "~56.0.11",
     "expo-linking": "~56.0.14",
+    "expo-print": "~56.0.4",
     "expo-router": "~56.2.11",
+    "expo-sharing": "~56.0.18",
     "expo-splash-screen": "~56.0.10",
     "expo-status-bar": "~56.0.4",
     "expo-symbols": "~56.0.6",
     "expo-system-ui": "~56.0.5",
     "expo-web-browser": "~56.0.5",
+    "firebase": "^12.15.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.85.3",
@@ -28,7 +33,9 @@
     "react-native-worklets": "0.8.3"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
     "@types/react": "~19.2.2",
+    "firebase-admin": "^14.4.0",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -37,7 +44,11 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-americas-travel --config firebase.test.json \"node --test tests/firestore-rules.test.mjs\""
+  },
+  "engines": {
+    "node": "^20.0.0 || ^22.0.0"
   },
   "private": true
 }

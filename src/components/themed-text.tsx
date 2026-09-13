@@ -1,28 +1,35 @@
 import { Platform, StyleSheet, Text, type TextProps } from 'react-native';
+import type { TextStyle } from 'react-native';
 
 import { Fonts, ThemeColor } from '@/constants/theme';
+import { useDeviceLayout } from '@/hooks/use-device-layout';
 import { useTheme } from '@/hooks/use-theme';
 
 export type ThemedTextProps = TextProps & {
-  type?: 'default' | 'title' | 'small' | 'smallBold' | 'subtitle' | 'link' | 'linkPrimary' | 'code';
+  type?:
+    | 'default'
+    | 'title'
+    | 'small'
+    | 'smallBold'
+    | 'subtitle'
+    | 'link'
+    | 'linkPrimary'
+    | 'code'
+    | 'eyebrow'
+    | 'sectionTitle';
   themeColor?: ThemeColor;
 };
 
 export function ThemedText({ style, type = 'default', themeColor, ...rest }: ThemedTextProps) {
   const theme = useTheme();
+  const { isTablet } = useDeviceLayout();
+  const typeStyle = getTypeStyle(type, isTablet);
 
   return (
     <Text
       style={[
         { color: theme[themeColor ?? 'text'] },
-        type === 'default' && styles.default,
-        type === 'title' && styles.title,
-        type === 'small' && styles.small,
-        type === 'smallBold' && styles.smallBold,
-        type === 'subtitle' && styles.subtitle,
-        type === 'link' && styles.link,
-        type === 'linkPrimary' && styles.linkPrimary,
-        type === 'code' && styles.code,
+        typeStyle,
         style,
       ]}
       {...rest}
@@ -30,44 +37,102 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
   );
 }
 
+function getTypeStyle(type: NonNullable<ThemedTextProps['type']>, isTablet: boolean) {
+  const baseStyle = (styles[type] ?? styles.default) as TextStyle;
+
+  if (!isTablet) {
+    return baseStyle;
+  }
+
+  const scaleByType: Record<NonNullable<ThemedTextProps['type']>, number> = {
+    default: 1.38,
+    title: 1.42,
+    small: 1.48,
+    smallBold: 1.48,
+    subtitle: 1.36,
+    link: 1.34,
+    linkPrimary: 1.34,
+    code: 1.24,
+    eyebrow: 1.28,
+    sectionTitle: 1.4,
+  };
+  const scale = scaleByType[type];
+  const tabletStyle: TextStyle = { ...baseStyle };
+
+  if (typeof baseStyle.fontSize === 'number') {
+    tabletStyle.fontSize = Math.round(baseStyle.fontSize * scale);
+  }
+
+  if (typeof baseStyle.lineHeight === 'number') {
+    tabletStyle.lineHeight = Math.round(baseStyle.lineHeight * scale);
+  }
+
+  return tabletStyle;
+}
+
 const styles = StyleSheet.create({
   small: {
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 19,
     fontWeight: 500,
+    fontFamily: Fonts.sans,
   },
   smallBold: {
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 19,
     fontWeight: 700,
+    fontFamily: Fonts.sans,
   },
   default: {
     fontSize: 16,
-    lineHeight: 24,
+    lineHeight: 23,
     fontWeight: 500,
+    fontFamily: Fonts.sans,
   },
   title: {
-    fontSize: 48,
-    fontWeight: 600,
-    lineHeight: 52,
+    fontSize: 36,
+    fontWeight: 800,
+    lineHeight: 40,
+    letterSpacing: -0.9,
+    fontFamily: Fonts.sans,
   },
   subtitle: {
-    fontSize: 32,
-    lineHeight: 44,
-    fontWeight: 600,
+    fontSize: 28,
+    lineHeight: 32,
+    fontWeight: 800,
+    letterSpacing: -0.5,
+    fontFamily: Fonts.sans,
   },
   link: {
-    lineHeight: 30,
+    lineHeight: 22,
     fontSize: 14,
+    fontWeight: 600,
+    fontFamily: Fonts.sans,
   },
   linkPrimary: {
-    lineHeight: 30,
+    lineHeight: 22,
     fontSize: 14,
     color: '#3c87f7',
+    fontWeight: 700,
+    fontFamily: Fonts.sans,
   },
   code: {
     fontFamily: Fonts.mono,
     fontWeight: Platform.select({ android: 700 }) ?? 500,
     fontSize: 12,
+  },
+  eyebrow: {
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: 700,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    lineHeight: 22,
+    fontWeight: 800,
+    letterSpacing: -0.3,
+    fontFamily: Fonts.sans,
   },
 });

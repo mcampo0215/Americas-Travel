@@ -1,0 +1,11 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Shared product catalog only. Sales stay in account-scoped local storage.
+    match /1/{document} {
+      allow read: if request.auth != null;
+      // Catalog maintenance requires an administrator using IAM/Admin SDK.
+      allow write: if false;
+    }
+  }
+}
