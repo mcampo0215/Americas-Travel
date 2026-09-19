@@ -1,16 +1,10 @@
 import { useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { getDeviceLayout } from '@/utils/device-layout';
 
 export function useDeviceLayout() {
-  const { width, height } = useWindowDimensions();
-  const isLandscape = width > height;
-  const isTablet = width >= 768;
-  const isLargeTablet = width >= 1024;
-
-  return {
-    width,
-    height,
-    isLandscape,
-    isTablet,
-    isLargeTablet,
-  };
+  const { width, height, fontScale } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  return getDeviceLayout(width - insets.left - insets.right, height - insets.top - insets.bottom, fontScale);
 }

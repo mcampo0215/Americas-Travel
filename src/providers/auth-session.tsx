@@ -20,6 +20,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
 
   useEffect(() => onAuthStateChanged(auth, (nextUser) => {
     setUser(nextUser);
+    setOnboarded(Boolean(nextUser));
     setAuthReady(true);
   }), []);
 

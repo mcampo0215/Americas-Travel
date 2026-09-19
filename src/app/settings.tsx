@@ -20,7 +20,7 @@ import { exportRevenueReport } from '@/utils/revenue-report';
 
 export default function SettingsScreen() {
   const theme = useTheme();
-  const { isTablet, isLandscape } = useDeviceLayout();
+  const { isTablet, useColumns, compactContentWidth } = useDeviceLayout();
   const preferenceContext = useThemePreference();
   const { soldItems, totalRevenue, totalSoldUnits, currentDateKey } = useInventoryStore();
   const [isExporting, setIsExporting] = useState(false);
@@ -58,9 +58,9 @@ export default function SettingsScreen() {
 
   return (
     <ThemedView style={styles.screen}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
         <ScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-          <View style={[styles.contentInner, { maxWidth: isTablet ? 1240 : 460 }]}>
+          <View style={[styles.contentInner, { maxWidth: isTablet ? 1240 : compactContentWidth }]}>
             <View style={styles.settingsSection}>
               <GlassSurface style={[styles.accountCard, { borderColor: theme.border }]}>
                 <Pressable
@@ -142,7 +142,7 @@ export default function SettingsScreen() {
               <Animated.View
                 style={styles.settingsSection}
                 entering={
-                  isTablet && isLandscape
+                  useColumns
                     ? FadeInRight.duration(EntranceMotion.aside).delay(90)
                     : FadeInDown.duration(EntranceMotion.aside).delay(90)
                 }>
@@ -485,6 +485,7 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   previewHeader: {
+    flexWrap: 'wrap',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
@@ -586,6 +587,7 @@ const styles = StyleSheet.create({
     color: '#F4F2FF',
   },
   inlineStatus: {
+    flexWrap: 'wrap',
     borderWidth: 1,
     borderRadius: 18,
     paddingHorizontal: 16,
@@ -614,6 +616,7 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   exportPreviewHeader: {
+    flexWrap: 'wrap',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -623,6 +626,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   previewInfoRow: {
+    flexWrap: 'wrap',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

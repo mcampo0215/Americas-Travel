@@ -24,17 +24,50 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
   const theme = useTheme();
   const { isTablet } = useDeviceLayout();
   const typeStyle = getTypeStyle(type, isTablet);
+  const resolvedStyle = StyleSheet.flatten([typeStyle, style]);
+  const fontFamily = type === 'code' || resolvedStyle.fontFamily === Fonts.mono
+    ? Fonts.mono
+    : getSansFont(resolvedStyle.fontWeight);
+  // Apply the readability increase after screen-specific overrides as well.
+  const readableSize: TextStyle = {
+    fontSize: typeof resolvedStyle.fontSize === 'number'
+      ? Math.round(resolvedStyle.fontSize * 1.12)
+      : undefined,
+    lineHeight: typeof resolvedStyle.lineHeight === 'number'
+      ? Math.ceil(resolvedStyle.lineHeight * 1.12)
+      : undefined,
+  };
 
   return (
     <Text
       style={[
-        { color: theme[themeColor ?? 'text'] },
+        { color: theme[themeColor ?? 'text'], flexShrink: 1 },
         typeStyle,
         style,
+        { fontFamily },
+        readableSize,
       ]}
       {...rest}
     />
   );
+}
+
+function getSansFont(fontWeight: TextStyle['fontWeight']) {
+  const numericWeight = typeof fontWeight === 'string' ? Number.parseInt(fontWeight, 10) : fontWeight;
+
+  if (fontWeight === 'bold' || (typeof numericWeight === 'number' && numericWeight >= 800)) {
+    return Fonts.sansExtraBold;
+  }
+
+  if (typeof numericWeight === 'number' && numericWeight >= 700) {
+    return Fonts.sansBold;
+  }
+
+  if (typeof numericWeight === 'number' && numericWeight >= 600) {
+    return Fonts.sansSemiBold;
+  }
+
+  return Fonts.sans;
 }
 
 function getTypeStyle(type: NonNullable<ThemedTextProps['type']>, isTablet: boolean) {
@@ -81,7 +114,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 19,
     fontWeight: 700,
-    fontFamily: Fonts.sans,
+    fontFamily: Fonts.sansBold,
   },
   default: {
     fontSize: 16,
@@ -94,27 +127,27 @@ const styles = StyleSheet.create({
     fontWeight: 800,
     lineHeight: 40,
     letterSpacing: -0.9,
-    fontFamily: Fonts.sans,
+    fontFamily: Fonts.sansExtraBold,
   },
   subtitle: {
     fontSize: 28,
     lineHeight: 32,
     fontWeight: 800,
     letterSpacing: -0.5,
-    fontFamily: Fonts.sans,
+    fontFamily: Fonts.sansExtraBold,
   },
   link: {
     lineHeight: 22,
     fontSize: 14,
     fontWeight: 600,
-    fontFamily: Fonts.sans,
+    fontFamily: Fonts.sansSemiBold,
   },
   linkPrimary: {
     lineHeight: 22,
     fontSize: 14,
     color: '#3c87f7',
     fontWeight: 700,
-    fontFamily: Fonts.sans,
+    fontFamily: Fonts.sansBold,
   },
   code: {
     fontFamily: Fonts.mono,
@@ -133,6 +166,6 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     fontWeight: 800,
     letterSpacing: -0.3,
-    fontFamily: Fonts.sans,
+    fontFamily: Fonts.sansExtraBold,
   },
 });

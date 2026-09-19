@@ -29,7 +29,7 @@ type ChartPoint = {
 
 export default function SoldTodayScreen() {
   const theme = useTheme();
-  const { isTablet, isLandscape } = useDeviceLayout();
+  const { isTablet, compactContentWidth } = useDeviceLayout();
   const {
     soldItems,
     revenueHistory,
@@ -55,10 +55,10 @@ export default function SoldTodayScreen() {
 
   return (
     <ThemedView style={styles.screen}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-          <View style={[styles.maxWidth, { maxWidth: isTablet ? 1180 : 430 }]}>
-            <View style={[styles.chartLayout, isTablet && isLandscape && styles.chartLayoutWide]}>
+          <View style={[styles.maxWidth, { maxWidth: isTablet ? 1180 : compactContentWidth }]}>
+            <View style={styles.chartLayout}>
               <Animated.View
                 entering={FadeInDown.duration(EntranceMotion.section)}
                 style={styles.chartColumn}>
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 18,
     paddingTop: 10,
-    paddingBottom: 110,
+    paddingBottom: 24,
   },
   maxWidth: {
     width: '100%',
@@ -505,12 +505,9 @@ const styles = StyleSheet.create({
   chartLayout: {
     gap: 18,
   },
-  chartLayoutWide: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
   chartColumn: {
-    flex: 0.95,
+    width: '100%',
+    minWidth: 0,
   },
   detailColumn: {
     flex: 1.05,
@@ -580,7 +577,8 @@ const styles = StyleSheet.create({
   },
   metricBlock: {
     flex: 1,
-    minWidth: 110,
+    flexBasis: 180,
+    minWidth: 0,
     gap: 6,
   },
   metricBlockRight: {

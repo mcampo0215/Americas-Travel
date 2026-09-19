@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SymbolView } from 'expo-symbols';
@@ -9,6 +9,7 @@ import Animated, { cancelAnimation, Easing, FadeInDown, useAnimatedStyle, useRed
 import { ThemedText } from '@/components/themed-text';
 import { OnboardingScreen } from '@/components/onboarding-screen';
 import { Fonts } from '@/constants/theme';
+import { useDeviceLayout } from '@/hooks/use-device-layout';
 import { auth } from '@/lib/auth';
 import { registerAccount } from '@/lib/register-account';
 import { useAuthSession } from '@/providers/auth-session';
@@ -49,9 +50,8 @@ export function WelcomeFlow() {
   const { onboarded, completeOnboarding } = useAuthSession();
   const [mode, setMode] = useState<AccountMode>('login');
   const [registeredEmail, setRegisteredEmail] = useState('');
-  const { width, height } = useWindowDimensions();
+  const { height, isTablet: wide } = useDeviceLayout();
   const reducedMotion = useReducedMotion();
-  const wide = width >= 768;
   const compact = height < 750;
 
   async function openAccount(nextMode: AccountMode) {
@@ -238,9 +238,9 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 16, lineHeight: 24, color: '#FFFFFF', maxWidth: 440 },
   field: { gap: 8 },
   label: { fontSize: 14, lineHeight: 20, color: ACCOUNT_COLORS.text },
-  input: { minHeight: 56, borderRadius: 8, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 14, fontFamily: Fonts.sans, fontSize: 16, lineHeight: 24 },
+  input: { minHeight: 56, borderRadius: 8, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 14, fontFamily: Fonts.sans, fontSize: 18, lineHeight: 27 },
   passwordShell: { borderRadius: 8, borderWidth: 1, flexDirection: 'row', alignItems: 'center' },
-  passwordInput: { flex: 1, minWidth: 0, minHeight: 54, paddingLeft: 16, paddingVertical: 14, fontFamily: Fonts.sans, fontSize: 16, lineHeight: 24 },
+  passwordInput: { flex: 1, minWidth: 0, minHeight: 54, paddingLeft: 16, paddingVertical: 14, fontFamily: Fonts.sans, fontSize: 18, lineHeight: 27 },
   eyeButton: { width: 48, height: 54, alignItems: 'center', justifyContent: 'center' },
   forgot: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center', marginTop: -12 },
   feedback: { fontSize: 14, lineHeight: 22 },

@@ -12,6 +12,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
+import { useDeviceLayout } from '@/hooks/use-device-layout';
 import { useTheme } from '@/hooks/use-theme';
 
 export type InsightsChartPoint = {
@@ -27,6 +28,8 @@ export function AnimatedInsightsChart({ data, label, currency = false }: {
   currency?: boolean;
 }) {
   const theme = useTheme();
+  const { fontScale, isTablet } = useDeviceLayout();
+  const plotHeight = isTablet ? 300 : 240;
   const active = usePathname() === '/explore';
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selected = data.find((point) => point.id === selectedId) ?? data[0];
@@ -42,17 +45,18 @@ export function AnimatedInsightsChart({ data, label, currency = false }: {
           {selected ? `${currency ? `$${selected.value.toFixed(2)}` : `${selected.value} sold`} · ${selected.detail}` : label}
         </ThemedText>
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      <ScrollView horizontal showsHorizontalScrollIndicator contentContainerStyle={styles.scrollContent}>
         <View style={styles.plot}>
           {[0, 0.5, 1].map((fraction) => (
-            <View key={fraction} pointerEvents="none" style={[styles.guide, { top: 26 + fraction * 132, borderColor: theme.textMuted }]} />
+            <View key={fraction} pointerEvents="none" style={[styles.guide, { top: 34 * fontScale + fraction * plotHeight, borderColor: theme.textMuted }]} />
           ))}
-          {data.length === 0 ? <View style={styles.emptyPlot} /> : data.map((point, index) => (
+          {data.length === 0 ? <View style={[styles.emptyPlot, { height: plotHeight + 110 * fontScale }]} /> : data.map((point, index) => (
             <ChartBar
               key={point.id}
               point={point}
               index={index}
-              height={Math.max(0, point.value / maximum * 132)}
+              height={Math.max(0, point.value / maximum * plotHeight)}
+              plotHeight={plotHeight}
               selected={point.id === selected?.id}
               active={active}
               currency={currency}
@@ -65,16 +69,19 @@ export function AnimatedInsightsChart({ data, label, currency = false }: {
   );
 }
 
-function ChartBar({ point, index, height, selected, active, currency, onSelect }: {
+function ChartBar({ point, index, height, plotHeight, selected, active, currency, onSelect }: {
   point: InsightsChartPoint;
   index: number;
   height: number;
+  plotHeight: number;
   selected: boolean;
   active: boolean;
   currency: boolean;
   onSelect: () => void;
 }) {
   const theme = useTheme();
+  const { fontScale, isTablet } = useDeviceLayout();
+  const slotWidth = (isTablet ? 120 : 96) * Math.max(1, fontScale);
   const reducedMotion = useReducedMotion();
   const animatedHeight = useSharedValue(reducedMotion ? height : 0);
 
@@ -99,18 +106,18 @@ function ChartBar({ point, index, height, selected, active, currency, onSelect }
       accessibilityLabel={`${point.label}: ${formatted}. ${point.detail}`}
       accessibilityState={{ selected }}
       onPress={onSelect}
-      style={({ pressed }) => [styles.slot, { opacity: pressed ? 0.75 : 1 }]}>
-      <ThemedText type="smallBold" style={[styles.value, { color: selected ? theme.text : theme.textSecondary }]} numberOfLines={1}>
+      style={({ pressed }) => [styles.slot, { minWidth: slotWidth, opacity: pressed ? 0.75 : 1 }]}>
+      <ThemedText type="smallBold" style={[styles.value, { height: 34 * fontScale, maxWidth: slotWidth, fontSize: isTablet ? 18 : 16, color: selected ? theme.text : theme.textSecondary }]} numberOfLines={1}>
         {currency ? `$${point.value.toFixed(0)}` : point.value}
       </ThemedText>
-      <View style={styles.barTrack}>
+      <View style={[styles.barTrack, { height: plotHeight }]}>
         <Animated.View testID="insights-chart-bar" style={[
           styles.bar,
-          { backgroundColor: selected ? theme.tint : theme.success },
+          { width: isTablet ? 52 : 40, backgroundColor: selected ? theme.tint : theme.success },
           barStyle,
         ]} />
       </View>
-      <ThemedText type="small" style={[styles.label, { color: selected ? theme.text : theme.textSecondary }]} numberOfLines={2}>
+      <ThemedText type="small" style={[styles.label, { height: 56 * fontScale, width: slotWidth, fontSize: isTablet ? 17 : 15, color: selected ? theme.text : theme.textSecondary }]} numberOfLines={2}>
         {point.label}
       </ThemedText>
       <View style={[styles.selectionMark, { backgroundColor: selected ? theme.tint : 'transparent' }]} />
@@ -120,17 +127,17 @@ function ChartBar({ point, index, height, selected, active, currency, onSelect }
 
 const styles = StyleSheet.create({
   chart: { gap: 16 },
-  readout: { height: 94, gap: 6, justifyContent: 'center' },
-  selectionName: { fontSize: 17, lineHeight: 23 },
-  detail: { fontSize: 13, lineHeight: 19, fontVariant: ['tabular-nums'] },
+  readout: { minHeight: 94, gap: 6, justifyContent: 'center' },
+  selectionName: { fontSize: 20, lineHeight: 28 },
+  detail: { fontSize: 15, lineHeight: 22, fontVariant: ['tabular-nums'] },
   scrollContent: { flexGrow: 1 },
-  plot: { flex: 1, flexDirection: 'row', gap: 10, position: 'relative' },
+  plot: { flex: 1, flexDirection: 'row', gap: 16, position: 'relative' },
   guide: { position: 'absolute', left: 0, right: 0, borderTopWidth: StyleSheet.hairlineWidth, opacity: 0.35 },
-  emptyPlot: { height: 218, width: '100%' },
-  slot: { flex: 1, minWidth: 66, alignItems: 'center' },
-  value: { height: 26, fontSize: 12, lineHeight: 20, maxWidth: 66, fontVariant: ['tabular-nums'] },
-  barTrack: { height: 132, justifyContent: 'flex-end', alignItems: 'center', width: '100%' },
-  bar: { width: 28, borderTopLeftRadius: 6, borderTopRightRadius: 6 },
-  label: { width: 66, height: 44, marginTop: 10, fontSize: 12, lineHeight: 17, textAlign: 'center' },
+  emptyPlot: { width: '100%' },
+  slot: { flex: 1, alignItems: 'center' },
+  value: { lineHeight: 26, fontVariant: ['tabular-nums'] },
+  barTrack: { justifyContent: 'flex-end', alignItems: 'center', width: '100%' },
+  bar: { borderTopLeftRadius: 8, borderTopRightRadius: 8 },
+  label: { marginTop: 14, lineHeight: 24, textAlign: 'center' },
   selectionMark: { width: 14, height: 3, borderRadius: 2, marginTop: 3 },
 });

@@ -12,12 +12,13 @@ import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
 
 import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
 
 export default function AppTabs() {
   return (
-    <Tabs>
-      <TabSlot style={{ height: '100%' }} />
+    <Tabs style={{ flex: 1, minHeight: 0 }}>
+      <TabSlot style={{ flex: 1, minHeight: 0 }} />
       <TabList asChild>
         <CustomTabList>
           <TabTrigger name="home" href="/" asChild>
@@ -36,10 +37,12 @@ export default function AppTabs() {
 }
 
 export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps) {
+  const scheme = useColorScheme();
+
   return (
-    <Pressable {...props} style={({ pressed }) => pressed && styles.pressed}>
+    <Pressable {...props} style={({ pressed }) => [styles.tabButton, pressed && styles.pressed]}>
       <ThemedView
-        type={isFocused ? 'backgroundSelected' : 'backgroundElement'}
+        type={isFocused ? 'backgroundSelected' : scheme === 'dark' ? 'background' : 'backgroundElement'}
         style={styles.tabButtonView}>
         <ThemedText type="small" themeColor={isFocused ? 'text' : 'textSecondary'}>
           {children}
@@ -53,7 +56,7 @@ export function CustomTabList(props: TabListProps) {
   const theme = useTheme();
 
   return (
-    <View {...props} style={styles.tabListContainer}>
+    <View {...props} style={[styles.tabListContainer, { backgroundColor: theme.background }]}>
       <ThemedView style={[styles.innerContainer, { backgroundColor: theme.background, borderColor: theme.border }]}>
         {props.children}
       </ThemedView>
@@ -63,8 +66,6 @@ export function CustomTabList(props: TabListProps) {
 
 const styles = StyleSheet.create({
   tabListContainer: {
-    position: 'absolute',
-    bottom: 0,
     width: '100%',
     padding: Spacing.three,
     justifyContent: 'center',
@@ -73,12 +74,11 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     paddingVertical: Spacing.two,
-    paddingHorizontal: Spacing.five,
+    paddingHorizontal: Spacing.two,
     borderRadius: Spacing.five,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    flexWrap: 'wrap',
     borderWidth: 1,
     flexGrow: 1,
     gap: Spacing.two,
@@ -87,9 +87,16 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.7,
   },
+  tabButton: {
+    flex: 1,
+    minWidth: 0,
+  },
   tabButtonView: {
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: Spacing.one,
-    paddingHorizontal: Spacing.three,
+    paddingHorizontal: Spacing.two,
     borderRadius: Spacing.three,
   },
 });

@@ -4,6 +4,7 @@ import { SymbolView } from 'expo-symbols';
 
 import { GlassSurface } from '@/components/glass-surface';
 import { ThemedText } from '@/components/themed-text';
+import { Fonts } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { changePassword, passwordErrorMessage } from '@/lib/change-password';
 import { useAuthSession } from '@/providers/auth-session';
@@ -102,6 +103,6 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   details: { borderTopWidth: 1, padding: 18, gap: 18 },
   field: { gap: 8 },
-  input: { minHeight: 48, borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 12, fontSize: 16 },
+  input: { minHeight: 48, borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 12, fontFamily: Fonts.sans, fontSize: 18, lineHeight: 26 },
   button: { alignSelf: 'flex-end', minHeight: 48, paddingHorizontal: 16, borderWidth: 1, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 10 },
 });

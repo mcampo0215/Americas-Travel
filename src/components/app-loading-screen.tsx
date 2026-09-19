@@ -521,10 +521,10 @@ const styles = StyleSheet.create({
     gap: 0.5,
   },
   loadingText: {
-    fontSize: 11,
-    lineHeight: 13,
+    fontSize: 13,
+    lineHeight: 16,
     fontWeight: '800',
-    fontFamily: Fonts.sans,
+    fontFamily: Fonts.sansExtraBold,
     letterSpacing: 0.7,
   },
 });

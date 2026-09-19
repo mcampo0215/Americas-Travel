@@ -21,7 +21,7 @@ import { SaleMoneyBurst } from '@/components/sale-money-burst';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { EntranceMotion } from '@/constants/motion';
-import { Radius } from '@/constants/theme';
+import { Fonts, Radius } from '@/constants/theme';
 import { useDeviceLayout } from '@/hooks/use-device-layout';
 import { useTheme } from '@/hooks/use-theme';
 import {
@@ -33,7 +33,7 @@ import {
 
 export default function InventoryScreen() {
   const theme = useTheme();
-  const { isTablet, isLandscape } = useDeviceLayout();
+  const { isTablet, useColumns, compactContentWidth, height, fontScale } = useDeviceLayout();
   const {
     items,
     soldItems,
@@ -67,14 +67,17 @@ export default function InventoryScreen() {
 
   return (
     <ThemedView style={styles.screen}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
         <ScrollView
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          automaticallyAdjustKeyboardInsets
           contentContainerStyle={styles.content}
-          stickyHeaderIndices={[1]}>
+          stickyHeaderIndices={height >= 600 && fontScale <= 1.3 ? [1] : undefined}>
           <Animated.View
             entering={FadeInDown.duration(EntranceMotion.screen)}
-            style={[styles.maxWidth, styles.pageHeader, { maxWidth: isTablet ? 1320 : 430 }]}>
+            style={[styles.maxWidth, styles.pageHeader, { maxWidth: isTablet ? 1320 : compactContentWidth }]}>
             <View style={styles.pageTitleRow}>
               <View style={styles.pageTitleWrap}>
                 <ThemedText type="smallBold" themeColor="textSecondary" style={styles.pageEyebrow}>
@@ -116,13 +119,13 @@ export default function InventoryScreen() {
                 styles.maxWidth,
                 styles.stickyHeaderInner,
                 {
-                  maxWidth: isTablet ? 1320 : 430,
+                  maxWidth: isTablet ? 1320 : compactContentWidth,
                 },
               ]}>
               <View
                 style={[
                   styles.stickyHeaderRow,
-                  isTablet && isLandscape && styles.stickyHeaderRowWide,
+                  useColumns && styles.stickyHeaderRowWide,
                 ]}>
                 <Animated.View
                   entering={FadeInDown.duration(EntranceMotion.screen)}
@@ -201,8 +204,8 @@ export default function InventoryScreen() {
                         styles.searchInput,
                         {
                           color: theme.text,
-                          fontSize: isTablet ? 20 : 16,
-                          lineHeight: isTablet ? 26 : 22,
+                          fontSize: isTablet ? 22 : 18,
+                          lineHeight: isTablet ? 30 : 26,
                         },
                       ]}
                     />
@@ -218,7 +221,7 @@ export default function InventoryScreen() {
                   </GlassSurface>
                 </Animated.View>
 
-                {isTablet && isLandscape ? <View style={styles.summaryColumn} /> : null}
+                {useColumns ? <View style={styles.summaryColumn} /> : null}
               </View>
             </View>
           </View>
@@ -227,10 +230,10 @@ export default function InventoryScreen() {
             style={[
               styles.maxWidth,
               {
-                maxWidth: isTablet ? 1320 : 430,
+                maxWidth: isTablet ? 1320 : compactContentWidth,
               },
             ]}>
-            <View style={[styles.tabletLayout, isTablet && isLandscape && styles.tabletLayoutWide]}>
+            <View style={[styles.tabletLayout, useColumns && styles.tabletLayoutWide]}>
               <View style={styles.listColumn}>
                 <View style={styles.sectionHeading}>
                   <ThemedText type="sectionTitle" style={styles.sectionTitle}>Catalog</ThemedText>
@@ -316,7 +319,7 @@ export default function InventoryScreen() {
                 </Animated.View>
               </View>
 
-              {isTablet && isLandscape ? (
+              {useColumns ? (
                 <View style={styles.summaryColumn}>
                   <Animated.View entering={FadeInRight.duration(EntranceMotion.aside).delay(180)}>
                     <View
@@ -697,6 +700,7 @@ function InventoryRow({
                 placeholderTextColor={theme.textMuted}
                 value={variablePriceValue}
                 onChangeText={onVariablePriceChange}
+                accessibilityLabel={`Sale price for ${item.name}`}
                 keyboardType="decimal-pad"
                 style={[styles.variablePriceInput, { color: theme.text }]}
               />
@@ -754,7 +758,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 18,
     paddingTop: 10,
-    paddingBottom: 110,
+    paddingBottom: 24,
   },
   maxWidth: {
     width: '100%',
@@ -892,6 +896,8 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
+    minWidth: 0,
+    fontFamily: Fonts.sans,
     fontWeight: '500',
     paddingVertical: 11,
   },
@@ -1089,17 +1095,22 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   variablePriceInput: {
-    fontSize: 16,
-    lineHeight: 22,
+    fontSize: 18,
+    lineHeight: 26,
+    fontFamily: Fonts.sansSemiBold,
     fontWeight: '600',
     paddingVertical: 2,
   },
   variablePriceActions: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'flex-end',
     gap: 10,
   },
   variablePriceCancelButton: {
+    minHeight: 44,
+    flexGrow: 1,
+    flexShrink: 1,
     minWidth: 92,
     paddingHorizontal: 14,
     paddingVertical: 10,
@@ -1109,6 +1120,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   variablePriceSaveButton: {
+    minHeight: 44,
+    flexGrow: 1,
+    flexShrink: 1,
     minWidth: 124,
     paddingHorizontal: 16,
     paddingVertical: 10,

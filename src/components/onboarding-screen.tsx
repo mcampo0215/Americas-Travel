@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { SymbolView } from 'expo-symbols';
 import Animated, { cancelAnimation, Easing, FadeInDown, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { Fonts } from '@/constants/theme';
+import { useDeviceLayout } from '@/hooks/use-device-layout';
 
 const CHAPTERS = [
   { label: 'READY FOR TAKEOFF', title: 'Americas\nTravel.', subtitle: 'A new day. A world of possibility.', accent: '#B9F5DD', origin: 'TODAY', destination: 'WHAT\'S NEXT', number: '01' },
@@ -16,8 +17,7 @@ const CHAPTERS = [
 
 export function OnboardingScreen({ onAccount }: { onAccount: (mode: 'login' | 'signup') => void }) {
   const [step, setStep] = useState(0);
-  const { width, height } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
+  const { width, height, isTablet: wide, fontScale } = useDeviceLayout();
   const reducedMotion = useReducedMotion();
   const progress = useSharedValue(0);
   const chapter = CHAPTERS[step];
@@ -36,7 +36,6 @@ export function OnboardingScreen({ onAccount }: { onAccount: (mode: 'login' | 's
   const planeMotion = useAnimatedStyle(() => ({
     transform: [{ translateX: (progress.value - 0.5) * Math.min(width * 0.4, 300) }, { translateY: -progress.value * 24 }, { rotate: '45deg' }],
   }));
-  const wide = width >= 768;
   const compact = height < 700;
 
   return (
@@ -52,7 +51,7 @@ export function OnboardingScreen({ onAccount }: { onAccount: (mode: 'login' | 's
       </Animated.View>
       <View pointerEvents="none" style={styles.photoTint} />
       <SafeAreaView style={styles.safe}>
-        <ScrollView bounces={false} showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { minHeight: height - insets.top - insets.bottom, paddingHorizontal: wide ? 56 : 24 }]}>
+        <ScrollView bounces={false} showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { minHeight: height, paddingHorizontal: wide ? 56 : 24 }]}>
           <View style={styles.header}>
             <View style={styles.brand}>
               <SymbolView name={{ ios: 'airplane', android: 'flight', web: 'flight' }} size={24} tintColor="#FFFFFF" />
@@ -69,7 +68,7 @@ export function OnboardingScreen({ onAccount }: { onAccount: (mode: 'login' | 's
               <View style={[styles.chapterDash, { backgroundColor: chapter.accent }]} />
               <ThemedText style={[styles.eyebrow, { color: chapter.accent }]}>{chapter.label}</ThemedText>
             </View>
-            <ThemedText accessibilityRole="header" style={[styles.title, wide && styles.titleWide, compact && styles.titleCompact]}>{chapter.title}</ThemedText>
+            <ThemedText accessibilityRole="header" maxFontSizeMultiplier={1.5} style={[styles.title, wide && styles.titleWide, compact && styles.titleCompact]}>{chapter.title}</ThemedText>
             <ThemedText style={styles.subtitle}>{chapter.subtitle}</ThemedText>
           </Animated.View>
 
@@ -87,7 +86,7 @@ export function OnboardingScreen({ onAccount }: { onAccount: (mode: 'login' | 's
               <SymbolView name={{ ios: 'arrow.right', android: 'arrow_forward', web: 'arrow_forward' }} size={16} tintColor={chapter.accent} />
               <ThemedText style={styles.routeText}>{chapter.destination}</ThemedText>
             </View>
-            <View style={[styles.footerMain, wide && styles.footerMainWide]}>
+            <View style={[styles.footerMain, wide && fontScale <= 1.3 && styles.footerMainWide]}>
               <View style={styles.progress}>
                 <ThemedText style={[styles.pageNumber, { color: chapter.accent }]}>{chapter.number}<ThemedText style={styles.pageTotal}> / 03</ThemedText></ThemedText>
                 <View style={styles.steps}>
@@ -98,7 +97,7 @@ export function OnboardingScreen({ onAccount }: { onAccount: (mode: 'login' | 's
                   ))}
                 </View>
               </View>
-              <View style={[styles.actions, wide && styles.actionsWide]}>
+              <View style={[styles.actions, wide && fontScale <= 1.3 && styles.actionsWide]}>
                 <Pressable accessibilityRole="button" onPress={() => step === 0 ? onAccount('login') : setStep(step - 1)} style={styles.back}>
                   <ThemedText style={styles.backText}>{step === 0 ? 'Skip' : 'Back'}</ThemedText>
                 </Pressable>
@@ -121,7 +120,7 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: { flexGrow: 1, paddingTop: 16 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' },
-  brand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  brand: { flexShrink: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
   brandText: { color: '#FFFFFF', fontSize: 12, lineHeight: 18, fontWeight: '700' },
   login: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 8 },
   loginText: { color: '#FFFFFF', fontSize: 15, lineHeight: 22, fontWeight: '600' },
@@ -129,7 +128,7 @@ const styles = StyleSheet.create({
   copyCompact: { paddingTop: 20, gap: 12 },
   chapterLine: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   chapterDash: { width: 24, height: 2 },
-  eyebrow: { fontFamily: Fonts.mono, fontSize: 11, lineHeight: 18 },
+  eyebrow: { flexShrink: 1, fontFamily: Fonts.mono, fontSize: 11, lineHeight: 18 },
   title: { fontSize: 52, lineHeight: 58, fontWeight: '800', letterSpacing: 0, color: '#FFFFFF', textShadowColor: 'rgba(0,0,0,0.25)', textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 16 },
   titleWide: { fontSize: 80, lineHeight: 86 },
   titleCompact: { fontSize: 44, lineHeight: 50 },
@@ -143,16 +142,16 @@ const styles = StyleSheet.create({
   routeRule: { height: 1, backgroundColor: '#486056', flex: 1 },
   footerMain: { gap: 8 },
   footerMainWide: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 32 },
-  progress: { flexDirection: 'row', alignItems: 'center', gap: 24 },
+  progress: { flexWrap: 'wrap', flexDirection: 'row', alignItems: 'center', gap: 24 },
   pageNumber: { fontFamily: Fonts.mono, fontSize: 26, lineHeight: 36 },
   pageTotal: { color: '#99B1A5', fontSize: 13, lineHeight: 20 },
   steps: { flexDirection: 'row', gap: 4 },
   stepTarget: { width: 44, height: 44, justifyContent: 'center' },
   stepLine: { height: 3, borderRadius: 2 },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-  actionsWide: { width: 350 },
+  actionsWide: { width: 350, maxWidth: '100%', flexShrink: 1 },
   back: { minWidth: 44, minHeight: 56, justifyContent: 'center' },
   backText: { color: '#D6E5DD', fontSize: 15, lineHeight: 22 },
   continue: { minHeight: 56, flex: 1, paddingHorizontal: 20, paddingVertical: 14, borderRadius: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
-  continueText: { color: '#102B23', fontSize: 16, lineHeight: 24, fontWeight: '700' },
+  continueText: { flexShrink: 1, color: '#102B23', fontSize: 16, lineHeight: 24, fontWeight: '700' },
 });

@@ -48,6 +48,43 @@ test('registration never signs into the primary session and cleans up on success
   }
 });
 
+test('native authentication uses persistent storage across app restarts', () => {
+  const storage = {};
+  const persistence = {};
+  const firebaseApp = {};
+  let initializedWith;
+
+  const { auth } = load('src/lib/auth.native.ts', {
+    './firebase': {},
+    '@react-native-async-storage/async-storage': { __esModule: true, default: storage },
+    'firebase/app': { getApp: () => firebaseApp },
+    'firebase/auth': {
+      getAuth: () => { throw new Error('Persistent auth should initialize on first launch'); },
+      getReactNativePersistence: (receivedStorage) => {
+        assert.equal(receivedStorage, storage);
+        return persistence;
+      },
+      initializeAuth: (app, options) => {
+        assert.equal(app, firebaseApp);
+        initializedWith = options;
+        return { app };
+      },
+    },
+  });
+
+  assert.equal(initializedWith.persistence, persistence);
+  assert.equal(auth.app, firebaseApp);
+});
+
+test('a restored authenticated session skips onboarding', () => {
+  const { resolveAuthDestination } = load('src/utils/auth-routing.ts', {});
+
+  assert.equal(resolveAuthDestination(false, false), 'loading');
+  assert.equal(resolveAuthDestination(false, true), 'loading');
+  assert.equal(resolveAuthDestination(true, true), 'signed-in');
+  assert.equal(resolveAuthDestination(true, false), 'signed-out');
+});
+
 test('accounts restore only their own sales, including after switching back', async () => {
   const storage = new Map([['inventory-daily-sales-v1', JSON.stringify({ items: [{ soldToday: 999 }] })]]);
   let user = { uid: 'alice' };
