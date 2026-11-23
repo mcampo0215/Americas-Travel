@@ -1,39 +1,63 @@
-# Welcome to your Expo app 👋
+<div align="center">
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+<img src="docs/readme/hero.gif" alt="America&#x27;s Travel: animated travel illustration" width="1040" />
 
-## Get started
+# America's Travel
 
-1. Install dependencies
+**From the first sale to the daily report.**
 
-   ```bash
-   npm install
-   ```
+<img src="docs/readme/stack.svg" alt="Expo 56 / React Native / TypeScript / Firebase" />
 
-2. Start the app
+[Overview](#overview) &nbsp; · &nbsp; [Run locally](#run-locally) &nbsp; · &nbsp; [Explore the repository](https://github.com/mcampo0215/Americas-Travel)
 
-   ```bash
-   npx expo start
-   ```
+</div>
 
-   To start on the iOS simulator with a clean bundler cache:
+---
 
-   ```bash
-   npm run ios -- --clear
-   ```
+## Overview
 
-   Use `npx expo` or the npm scripts so the CLI matches this project's Expo SDK.
-   A bare `expo` command can run an older globally installed version and fail
-   to bundle Expo Router with an `EXPO_ROUTER_APP_ROOT` error.
+A sales and inventory app for America's Travel Express. Staff can browse a shared product catalog, record sales, track stock and revenue, and generate daily PDF reports. The interface includes a welcome flow, themed screens, sales insights, and milestone animations.
 
-In the output, you'll find options to open the app in a
+| Manage stock | Track the day | Share a report |
+| :--- | :--- | :--- |
+| Browse catalog items and adjust account-scoped local inventory. | Record sales and review units sold, revenue, and history. | Generate, print, or share a daily revenue PDF. |
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Run locally
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+Use Node.js 22 from `.nvmrc` (the package also permits Node 20), then:
+
+```sh
+npm ci
+npx expo start
+```
+
+For the iOS simulator with a clean bundler cache:
+
+```sh
+npm run ios -- --clear
+```
+
+Use the local `npx expo` CLI or npm scripts. A globally installed older Expo CLI can produce an `EXPO_ROUTER_APP_ROOT` bundling error. The project uses Expo SDK 56; see the [versioned Expo reference](https://docs.expo.dev/versions/v56.0.0/).
+
+## How the app is organized
+
+| Source | Responsibility |
+| :--- | :--- |
+| [src/app/](src/app/) | Expo Router screens for inventory, sales insights, and settings. |
+| [src/providers/auth-session.tsx](src/providers/auth-session.tsx) | Firebase authentication and session state. |
+| [src/providers/inventory-store.tsx](src/providers/inventory-store.tsx) | Catalog retrieval, account-scoped local sales, stock, and revenue history. |
+| [src/utils/revenue-report.ts](src/utils/revenue-report.ts) | PDF creation, sharing, and printing. |
+| [docs/device-layout-validation.md](docs/device-layout-validation.md) | Device layout validation notes. |
+
+## Checks
+
+```sh
+node --test tests/account-isolation.test.cjs
+node --test tests/device-layout.test.cjs
+npm run test:rules
+```
+
+The rules command needs the Firebase CLI and the Firestore emulator prerequisites. It uses the demo test project from `firebase.test.json`.
 
 ## Authentication Setup
 
@@ -81,32 +105,6 @@ repository (`gcloud auth application-default login`), then run
 `node scripts/update-firestore-image-urls.mjs`. Administrator access bypasses client
 rules; never distribute these credentials with the app.
 
-## Get a fresh project
+---
 
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+<p align="center"><a href="#americas-travel">Back to the top</a></p>
